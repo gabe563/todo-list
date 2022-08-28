@@ -5,6 +5,84 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Todo List</title>
-  <script defer src="bundle.js"></script></head>
-  <body></body>
+    <link rel="stylesheet" href="./styles/main.css" />
+    <link rel="icon" href="./assets/icon.png" />
+    <script defer src="bundle.js"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.0-beta.3/iconify-icon.min.js"></script>
+  </head>
+  <body>
+    <div class="header">
+      <div class="header-txt">
+        <iconify-icon
+          icon="icons8:todo-list"
+          width="40"
+          height="40"
+        ></iconify-icon>
+        <p>Todo List</p>
+      </div>
+      <a href="https://github.com/FOXYSAMU" target="_blank">
+        <iconify-icon
+          class="git hover"
+          icon="akar-icons:github-fill"
+          width="38"
+          height="38"
+        ></iconify-icon>
+      </a>
+    </div>
+    <div class="content">
+      <div class="opt">
+        <div class="icons">
+          <div class="inbox">
+            <iconify-icon
+              icon="akar-icons:inbox"
+              width="30"
+              height="30"
+            ></iconify-icon>
+            <p>Inbox</p>
+          </div>
+          <div class="today">
+            <iconify-icon
+              icon="fluent:calendar-today-16-regular"
+              width="30"
+              height="30"
+            ></iconify-icon>
+            <p>Today</p>
+          </div>
+          <div class="favorite">
+            <iconify-icon
+              icon="uim:favorite"
+              width="30"
+              height="30"
+            ></iconify-icon>
+            <p>Favorite</p>
+          </div>
+        </div>
+        <div class="projects-cont">
+          <p>Projects</p>
+          <div class="projects">
+            <div class="add-project">
+              <iconify-icon
+                icon="fluent:add-20-regular"
+                width="35"
+                height="35"
+              ></iconify-icon>
+              <p>New Project</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="main">
+        <p>Inbox</p>
+        <iconify-icon
+          icon="fluent:add-20-regular"
+          width="35"
+          height="35"
+        ></iconify-icon>
+        <div class="tasks"></div>
+      </div>
+    </div>
+    <div class="task-modal"></div>
+    <div class="project-modal"></div>
+    <div class="overlay" id="overlay"></div>
+  </body>
 </html>
