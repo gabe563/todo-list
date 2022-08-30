@@ -7,7 +7,6 @@
     <title>Todo List</title>
     <link rel="stylesheet" href="./styles/main.css" />
     <link rel="icon" href="./assets/icon.png" />
-    <script defer src="bundle.js"></script>
     <script src="https://code.iconify.design/iconify-icon/1.0.0-beta.3/iconify-icon.min.js"></script>
   </head>
   <body>
@@ -32,7 +31,7 @@
     <div class="content">
       <div class="opt">
         <div class="icons">
-          <div class="inbox">
+          <div class="inbox current">
             <iconify-icon
               icon="akar-icons:inbox"
               width="30"
@@ -58,17 +57,15 @@
           </div>
         </div>
         <div class="projects-cont">
-          <p>Projects</p>
-          <div class="projects">
-            <div class="add-project">
-              <iconify-icon
-                icon="fluent:add-20-regular"
-                width="35"
-                height="35"
-              ></iconify-icon>
-              <p>New Project</p>
-            </div>
+          <div class="projects-header">
+            <p>Projects</p>
+            <iconify-icon
+              icon="fluent:add-20-regular"
+              width="35"
+              height="35"
+            ></iconify-icon>
           </div>
+          <div class="projects"></div>
         </div>
       </div>
       <div class="main">
@@ -81,8 +78,57 @@
         <div class="tasks"></div>
       </div>
     </div>
-    <div class="task-modal"></div>
-    <div class="project-modal"></div>
+    <div class="task-modal center">
+      <div class="modal-top">
+        <p>Create task</p>
+      </div>
+      <form class="modal-cont" id="modalCont">
+        <div class="input">
+          <p>Name:</p>
+          <input type="text" id="task-name" maxlength="40" required />
+        </div>
+        <div class="input">
+          <p>Due-date:</p>
+          <input type="date" id="task-date" required />
+        </div>
+        <div class="input">
+          <p>Priority:</p>
+          <select id="task-priority">
+            <option value="low" selected>Low</option>
+            <option value="normal">Normal</option>
+            <option value="important">Important</option>
+          </select>
+        </div>
+        <div class="input">
+          <p>Description:</p>
+          <textarea id="task-description" required></textarea>
+        </div>
+        <div class="input">
+          <p>Project:</p>
+          <select id="task-project">
+            <option value="none" selected>None</option>
+          </select>
+        </div>
+      </form>
+      <div class="modal-bottom">
+        <button type="submit" form="modalCont">Add Task</button>
+      </div>
+    </div>
+    <div class="project-modal center">
+      <div class="modal-top">
+        <p>Create project</p>
+      </div>
+      <form class="project-cont" id="projectCont">
+        <div class="input">
+          <p>Name:</p>
+          <input type="text" id="task-name" maxlength="40" required />
+        </div>
+      </form>
+      <div class="modal-bottom">
+        <button type="submit" form="projectCont">Add Project</button>
+      </div>
+    </div>
     <div class="overlay" id="overlay"></div>
+    <script src="bundle.js"></script>
   </body>
 </html>
