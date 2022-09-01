@@ -111,7 +111,7 @@
         </div>
       </form>
       <div class="modal-bottom">
-        <button type="submit" form="modalCont">Add Task</button>
+        <button type="submit" form="modalCont" id="addToDo">Add Task</button>
       </div>
     </div>
     <div class="project-modal center">
@@ -121,11 +121,24 @@
       <form class="project-cont" id="projectCont">
         <div class="input">
           <p>Name:</p>
-          <input type="text" id="task-name" maxlength="40" required />
+          <input type="text" id="project-name" maxlength="40" required />
         </div>
       </form>
       <div class="modal-bottom">
         <button type="submit" form="projectCont">Add Project</button>
+      </div>
+    </div>
+    <div class="warning-modal center">
+      <div class="modal-top">
+        <p>Attention</p>
+      </div>
+      <div class="warning-cont">
+        <iconify-icon icon="ep:warning" width="130" height="130"></iconify-icon>
+        <p>Are you sure you want to delete it?</p>
+      </div>
+      <div class="modal-bottom">
+        <button class="delNo">No</button>
+        <button class="delYes">Yes</button>
       </div>
     </div>
     <div class="overlay" id="overlay"></div>
