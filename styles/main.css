@@ -235,6 +235,7 @@ body {
 .input input,
 select,
 textarea {
+  font-family: var(--nd-font);
   width: 20vw;
   height: 50px;
   border-radius: 15px;
@@ -490,11 +491,15 @@ input[type='date']::-webkit-calendar-picker-indicator {
 .tasks {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 35px;
+  align-items: center;
   margin-top: 30px;
   width: 100%;
+}
+
+.task-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .toDo {
@@ -506,8 +511,10 @@ input[type='date']::-webkit-calendar-picker-indicator {
   height: 55px;
   background-color: #ffffff;
   padding: 0 25px;
+  margin-bottom: 45px;
   border-radius: 15px;
   border: 0.5px solid black;
+  position: relative;
 }
 
 .left {
@@ -544,6 +551,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
   height: 20px;
   border-radius: 15px;
   border: 0.5px solid black;
+  transition: all 0.2s ease;
 }
 
 .priority {
@@ -562,13 +570,80 @@ input[type='date']::-webkit-calendar-picker-indicator {
   background-color: #f87171;
 }
 
+.arrow {
+  position: absolute;
+  bottom: 0;
+  right: 47%;
+  margin-bottom: -45px;
+}
+
+.arrow > iconify-icon {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.information {
+  display: none;
+  align-items: center;
+  gap: 115px;
+  margin-bottom: 40px;
+  padding: 40px;
+  width: 52vw;
+  height: 130px;
+  border-radius: 15px;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  background-color: #ffffff;
+}
+
+.information.active {
+  display: flex;
+  animation: fadeIn 0.5s;
+}
+
+.arrow {
+  transform: rotate(0deg);
+}
+
+.arrow.active {
+  transform: rotate(-180deg);
+}
+
+.check.active {
+  border: none;
+}
+
+.star {
+  color: var(--rd-icon);
+}
+
+.due-date,
+.description {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.due-date p,
+.description p {
+  font-size: 20px;
+  white-space: nowrap;
+  -webkit-text-stroke: 0px;
+  letter-spacing: 0px;
+}
+
+.due-date p:last-child,
+.description p:last-child {
+  font-size: 18px;
+  color: rgba(0, 0, 0, 0.7);
+}
+
 .git:hover,
 .inbox:hover,
 .today:hover,
 .favorite:hover,
 .projects-header iconify-icon:hover,
 .main iconify-icon:hover,
-.modal-bottom button:hover {
+.modal-bottom button:hover,
+.check:hover {
   transform: scale(1.1, 1.1);
 }
 
@@ -578,7 +653,8 @@ input[type='date']::-webkit-calendar-picker-indicator {
 .favorite:active,
 .projects-header iconify-icon:active,
 .main iconify-icon:active,
-.modal-bottom button:active {
+.modal-bottom button:active,
+.check:active {
   transform: scale(1, 1);
 }
 
@@ -599,5 +675,18 @@ input[type='date']::-webkit-calendar-picker-indicator {
   }
   100% {
     opacity: 0;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    display: none;
+  }
+  1% {
+    display: flex;
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
   }
 }
