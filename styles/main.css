@@ -29,7 +29,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 0px 30px;
-  height: 66px;
+  height: 57px;
   background-color: var(--st--color);
   color: white;
 }
@@ -50,15 +50,34 @@ body {
   font-family: var(--st-font);
 }
 
+.header-txt iconify-icon {
+  padding: 3px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.header-txt iconify-icon:hover {
+  background-color: rgba(217, 217, 217, 0.2);
+  cursor: pointer;
+}
+
 .content {
   display: flex;
   font-family: var(--nd-font);
 }
 
 .opt {
-  width: 384px;
-  height: calc(100vh - 66px);
+  z-index: 2;
+  position: absolute;
+  width: 360px;
+  height: calc(100vh - 57px);
+  transform: translateX(-385px);
   background-color: var(--rd--color);
+  transition: transform 0.3s ease;
+}
+
+.opt.toggle {
+  transform: translateX(0);
 }
 
 .icons {
@@ -105,7 +124,7 @@ body {
 .projects-header {
   display: flex;
   align-items: center;
-  gap: 150px;
+  gap: 130px;
 }
 
 .projects-header iconify-icon {
@@ -118,15 +137,17 @@ body {
   align-items: center;
   gap: 24px;
   width: 156px;
-
   cursor: pointer;
 }
 
 .main {
+  height: calc(100vh - 57px);
+  max-height: calc(100vh - 57px);
   display: flex;
   flex-direction: column;
-  width: calc(100vw - 384px);
-  padding: 60px 100px;
+  width: 100%;
+  padding: 60px 6vw 0 14vw;
+  transition: margin 0.3s ease;
 }
 
 .main p {
@@ -140,7 +161,8 @@ body {
   align-self: flex-end;
 }
 
-.task-modal {
+.task-modal,
+.task-edit {
   font-family: var(--nd-font);
   font-size: 27px;
   color: rgba(0, 0, 0, 0.7);
@@ -156,23 +178,26 @@ body {
   transform: translate(-50%, -50%);
 }
 
-.task-modal {
+.task-modal,
+.task-edit {
+  z-index: 4;
   border-radius: 50px;
-  z-index: 2;
   top: -200%;
   transform: translate(-50%, -50%) scale(0.5);
   transition: opacity 300ms ease-in-out, top 1000ms ease-in-out,
     transform 1000ms ease-in-out;
 }
 
-.task-modal.active {
+.task-modal.active,
+.task-edit.active {
   opacity: 1;
   top: 50%;
   transform: translate(-50%, -50%) scale(1);
   transition: transform 300ms cubic-bezier(0.18, 0.89, 0.43, 1.19);
 }
 
-.task-modal .modal-top {
+.task-modal .modal-top,
+.task-edit .modal-top {
   display: flex;
   align-items: center;
   background-color: #ffffff;
@@ -182,7 +207,8 @@ body {
   border-radius: 50px 50px 0 0;
 }
 
-.task-modal .modal-bottom {
+.task-modal .modal-bottom,
+.task-edit .modal-bottom {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -194,7 +220,8 @@ body {
   border-radius: 0 0 50px 50px;
 }
 
-.task-modal .modal-bottom button {
+.task-modal .modal-bottom button,
+.task-edit .modal-bottom button {
   cursor: pointer;
   font-size: 17px;
   border: none;
@@ -204,7 +231,8 @@ body {
   transition: all 0.2s ease;
 }
 
-.task-modal .modal-cont {
+.task-modal .modal-cont,
+.task-edit .modal-cont {
   display: grid;
   grid-template-columns: repeat(2, 30vw);
   justify-items: center;
@@ -275,7 +303,9 @@ input[type='date']::-webkit-calendar-picker-indicator {
   opacity: 0.4;
 }
 
-.project-modal {
+.project-modal,
+.project-edit {
+  z-index: 4;
   width: 45vw;
   height: 40vh;
   background-color: var(--nd--color);
@@ -284,23 +314,25 @@ input[type='date']::-webkit-calendar-picker-indicator {
   font-size: 20px;
 }
 
-.project-modal {
+.project-modal,
+.project-edit {
   border-radius: 50px;
-  z-index: 2;
   top: -200%;
   transform: translate(-50%, -50%) scale(0.5);
   transition: opacity 300ms ease-in-out, top 1000ms ease-in-out,
     transform 1000ms ease-in-out;
 }
 
-.project-modal.active {
+.project-modal.active,
+.project-edit.active {
   opacity: 1;
   top: 50%;
   transform: translate(-50%, -50%) scale(1);
   transition: transform 300ms cubic-bezier(0.18, 0.89, 0.43, 1.19);
 }
 
-.project-modal .modal-top {
+.project-modal .modal-top,
+.project-edit .modal-top {
   display: flex;
   align-items: center;
   padding-left: 5vw;
@@ -310,7 +342,8 @@ input[type='date']::-webkit-calendar-picker-indicator {
   border-radius: 50px 50px 0 0;
 }
 
-.project-modal .modal-bottom {
+.project-modal .modal-bottom,
+.project-edit .modal-bottom {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -329,7 +362,8 @@ input[type='date']::-webkit-calendar-picker-indicator {
   height: 65%;
 }
 
-.project-modal .modal-bottom button {
+.project-modal .modal-bottom button,
+.project-edit .modal-bottom button {
   cursor: pointer;
   font-size: 15px;
   border: none;
@@ -340,6 +374,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
 }
 
 .warning-modal {
+  z-index: 4;
   width: 45vw;
   height: 55vh;
   background-color: var(--nd--color);
@@ -350,7 +385,6 @@ input[type='date']::-webkit-calendar-picker-indicator {
 
 .warning-modal {
   border-radius: 50px;
-  z-index: 2;
   top: -200%;
   transform: translate(-50%, -50%) scale(0.5);
   transition: opacity 300ms ease-in-out, top 1000ms ease-in-out,
@@ -411,6 +445,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
 }
 
 .overlay {
+  z-index: 3;
   display: none;
   position: fixed;
   top: 0;
@@ -427,7 +462,9 @@ input[type='date']::-webkit-calendar-picker-indicator {
 
 .project-modal > div:first-child,
 .task-modal > div:first-child,
-.warning-modal > div:first-child {
+.warning-modal > div:first-child,
+.task-edit > div:first-child,
+.project-edit > div:first-child {
   position: relative;
   top: 10px;
   opacity: 0;
@@ -435,7 +472,9 @@ input[type='date']::-webkit-calendar-picker-indicator {
 
 .project-modal > div:last-child,
 .task-modal > div:last-child,
-.warning-modal > div:last-child {
+.warning-modal > div:last-child,
+.task-edit > div:last-child,
+.project-edit > div:last-child {
   position: relative;
   top: 10px;
   opacity: 0;
@@ -443,7 +482,9 @@ input[type='date']::-webkit-calendar-picker-indicator {
 
 .project-modal > form,
 .task-modal > form,
-.warning-modal > div:nth-child(2) {
+.warning-modal > div:nth-child(2),
+.task-edit > form,
+.project-edit > form {
   position: relative;
   top: 10px;
   opacity: 0;
@@ -451,40 +492,52 @@ input[type='date']::-webkit-calendar-picker-indicator {
 
 .project-modal.active > div:first-child,
 .task-modal.active > div:first-child,
-.warning-modal.active > div:first-child {
+.warning-modal.active > div:first-child,
+.task-edit.active > div:first-child,
+.project-edit.active > div:first-child {
   top: 0px;
   opacity: 1;
 }
 
 .project-modal.active > div:last-child,
 .task-modal.active > div:last-child,
-.warning-modal.active > div:last-child {
+.warning-modal.active > div:last-child,
+.task-edit.active > div:last-child,
+.project-edit.active > div:last-child {
   top: 0px;
   opacity: 1;
 }
 
 .project-modal.active > form,
 .task-modal.active > form,
-.warning-modal.active > div:nth-child(2) {
+.warning-modal.active > div:nth-child(2),
+.task-edit.active > form,
+.project-edit.active > form {
   top: 0px;
   opacity: 1;
 }
 
 .project-modal.active .modal-top,
 .task-modal.active .modal-top,
-.warning-modal.active .modal-top {
+.warning-modal.active .modal-top,
+.task-edit.active .modal-top,
+.project-edit.active .modal-top {
   transition: all 300ms ease-in-out 300ms;
 }
 
 .task-modal.active .modal-cont,
 .project-modal.active .project-cont,
-.warning-modal.active .warning-cont {
+.warning-modal.active .warning-cont,
+.task-edit.active .modal-cont,
+.project-edit.active .project-cont {
   transition: all 300ms ease-in-out 350ms;
 }
 
 .project-modal.active .modal-bottom,
 .task-modal.active .modal-bottom,
-.warning-modal.active .modal-bottom {
+.warning-modal.active .modal-bottom,
+.task-edit.active .modal-bottom,
+.project-edit.active .modal-bottom {
   transition: all 300ms ease-in-out 400ms;
 }
 
@@ -507,7 +560,8 @@ input[type='date']::-webkit-calendar-picker-indicator {
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  width: 800px;
+  z-index: 1;
+  width: 54vw;
   height: 55px;
   background-color: #ffffff;
   padding: 0 25px;
@@ -558,6 +612,8 @@ input[type='date']::-webkit-calendar-picker-indicator {
   width: 20px;
   height: 20px;
   border-radius: 5px;
+  background-image: none;
+  padding: 11px;
 }
 
 .priority.low {
@@ -574,7 +630,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
   position: absolute;
   bottom: 0;
   right: 47%;
-  margin-bottom: -45px;
+  margin-bottom: -38px;
 }
 
 .arrow > iconify-icon {
@@ -587,7 +643,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
   gap: 115px;
   margin-bottom: 40px;
   padding: 40px;
-  width: 52vw;
+  width: 42vw;
   height: 130px;
   border-radius: 15px;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
@@ -636,6 +692,48 @@ input[type='date']::-webkit-calendar-picker-indicator {
   color: rgba(0, 0, 0, 0.7);
 }
 
+.projects {
+  padding: 35px 0px;
+}
+
+.projectCard {
+  display: flex;
+  align-items: center;
+  margin-bottom: 35px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  padding: 10px;
+}
+
+.projectCard.current {
+  border-radius: 0;
+  width: auto;
+  background: none;
+  -webkit-text-stroke: 0;
+}
+
+.project-line {
+  width: 3px;
+  height: 25px;
+  background-color: #808080;
+  border: none;
+  margin-right: 25px;
+}
+
+.projectCard p {
+  font-size: 16px;
+}
+
+.project-icons {
+  display: flex;
+  gap: 30px;
+  margin-left: auto;
+}
+
+.project-icons iconify-icon {
+  transition: all 0.2s ease;
+}
+
 .git:hover,
 .inbox:hover,
 .today:hover,
@@ -643,7 +741,9 @@ input[type='date']::-webkit-calendar-picker-indicator {
 .projects-header iconify-icon:hover,
 .main iconify-icon:hover,
 .modal-bottom button:hover,
-.check:hover {
+.check:hover,
+.project-icons iconify-icon:hover,
+.header-txt iconify-icon:hover {
   transform: scale(1.1, 1.1);
 }
 
@@ -654,7 +754,9 @@ input[type='date']::-webkit-calendar-picker-indicator {
 .projects-header iconify-icon:active,
 .main iconify-icon:active,
 .modal-bottom button:active,
-.check:active {
+.check:active,
+.project-icons iconify-icon:active,
+.header-txt iconify-icon:active {
   transform: scale(1, 1);
 }
 
@@ -663,6 +765,10 @@ input[type='date']::-webkit-calendar-picker-indicator {
   width: 150px;
   background: rgba(217, 217, 217, 0.5);
   -webkit-text-stroke: 0.8px black;
+}
+
+.disabled {
+  display: none;
 }
 
 .fade {
@@ -688,5 +794,129 @@ input[type='date']::-webkit-calendar-picker-indicator {
   }
   100% {
     transform: scale(1);
+  }
+}
+
+@media screen and (min-width: 1150px) {
+  .main.toggle {
+    margin-left: 0;
+  }
+
+  .main {
+    margin-left: 20vw;
+  }
+
+  .opt.toggle {
+    transform: translateX(-385px);
+  }
+
+  .opt {
+    width: 340px;
+    transform: translateX(0);
+  }
+}
+
+@media screen and (max-width: 1150px) {
+  .toDo {
+    width: 75vw;
+  }
+
+  .information.active {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4vw;
+    width: 48vw;
+    padding: 28px;
+  }
+
+  .modal-top p {
+    padding-left: 6vw;
+    font-size: 20px;
+  }
+
+  .project-modal .modal-top p,
+  .project-edit .modal-top p {
+    padding-left: 3vw;
+  }
+
+  .project-modal,
+  .project-edit {
+    width: 75vw;
+    height: 35vh;
+  }
+
+  .project-modal .input input,
+  .project-edit .input input {
+    width: 40vw;
+    height: 35px;
+  }
+
+  .task-modal .modal-bottom button,
+  .task-edit .modal-bottom button {
+    font-size: 13px;
+  }
+
+  .task-modal,
+  .task-edit {
+    width: 88vw;
+    height: 45vh;
+  }
+
+  .task-modal .modal-top,
+  .task-edit .modal-top {
+    height: 50px;
+  }
+
+  .task-modal .modal-cont,
+  .task-edit .modal-cont {
+    column-gap: 10px;
+    row-gap: 15px;
+  }
+
+  .task-modal .modal-bottom,
+  .task-edit .modal-bottom {
+    height: 50px;
+  }
+
+  .input {
+    gap: 15px;
+  }
+
+  .input p {
+    font-size: 13px;
+  }
+
+  .input input,
+  select,
+  textarea {
+    font-size: 11px;
+    width: 26vw;
+    height: 35px;
+    padding: 5px 15px;
+  }
+
+  textarea {
+    height: 100px;
+  }
+
+  .warning-modal {
+    width: 85vw;
+    height: 47vh;
+  }
+
+  .warning-modal .modal-top p {
+    padding: 0;
+  }
+
+  .warning-modal .warning-cont p {
+    font-size: 15px;
+  }
+
+  .warning-modal .warning-cont {
+    height: 30vh;
+  }
+
+  .warning-modal .modal-bottom {
+    gap: 30vw;
   }
 }

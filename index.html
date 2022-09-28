@@ -31,7 +31,7 @@
     <div class="content">
       <div class="opt">
         <div class="icons">
-          <div class="inbox current">
+          <div class="inbox option current">
             <iconify-icon
               icon="akar-icons:inbox"
               width="30"
@@ -39,7 +39,7 @@
             ></iconify-icon>
             <p>Inbox</p>
           </div>
-          <div class="today">
+          <div class="today option">
             <iconify-icon
               icon="fluent:calendar-today-16-regular"
               width="30"
@@ -47,7 +47,7 @@
             ></iconify-icon>
             <p>Today</p>
           </div>
-          <div class="favorite">
+          <div class="favorite option">
             <iconify-icon
               icon="uim:favorite"
               width="30"
@@ -105,13 +105,45 @@
         </div>
         <div class="input">
           <p>Project:</p>
-          <select id="task-project">
-            <option value="none" selected>None</option>
-          </select>
+          <select id="task-project"></select>
         </div>
       </form>
       <div class="modal-bottom">
         <button type="submit" form="modalCont" id="addToDo">Add Task</button>
+      </div>
+    </div>
+    <div class="task-edit center">
+      <div class="modal-top">
+        <p>Edit task</p>
+      </div>
+      <form class="modal-cont" id="editCont">
+        <div class="input">
+          <p>Name:</p>
+          <input type="text" id="edit-name" maxlength="40" required />
+        </div>
+        <div class="input">
+          <p>Due-date:</p>
+          <input type="date" id="edit-date" required />
+        </div>
+        <div class="input">
+          <p>Priority:</p>
+          <select id="edit-priority">
+            <option value="low">Low</option>
+            <option value="normal">Normal</option>
+            <option value="important">Important</option>
+          </select>
+        </div>
+        <div class="input">
+          <p>Description:</p>
+          <textarea id="edit-description" required></textarea>
+        </div>
+        <div class="input">
+          <p>Project:</p>
+          <select id="edit-project"></select>
+        </div>
+      </form>
+      <div class="modal-bottom">
+        <button type="submit" form="editCont" id="editToDo">Edit Task</button>
       </div>
     </div>
     <div class="project-modal center">
@@ -121,11 +153,39 @@
       <form class="project-cont" id="projectCont">
         <div class="input">
           <p>Name:</p>
-          <input type="text" id="project-name" maxlength="40" required />
+          <input
+            type="text"
+            id="project-name"
+            maxlength="12"
+            required
+            pattern="^(?!.*[iI][nN][bB][oO][xX]|[tT][oO][dD][aA][yY]|[fF][aA][vV][oO][rR][iI][tT][eE]).*"
+            title="Reserved project names can't be used"
+          />
         </div>
       </form>
       <div class="modal-bottom">
         <button type="submit" form="projectCont">Add Project</button>
+      </div>
+    </div>
+    <div class="project-edit center">
+      <div class="modal-top">
+        <p>Edit project</p>
+      </div>
+      <form class="project-cont" id="projectEditCont">
+        <div class="input">
+          <p>Name:</p>
+          <input
+            type="text"
+            id="project-edit-name"
+            maxlength="20"
+            required
+            pattern="^(?!.*[iI][nN][bB][oO][xX]|[tT][oO][dD][aA][yY]|[fF][aA][vV][oO][rR][iI][tT][eE]).*"
+            title="Reserved project names can't be used"
+          />
+        </div>
+      </form>
+      <div class="modal-bottom">
+        <button type="submit" form="projectEditCont">Edit Project</button>
       </div>
     </div>
     <div class="warning-modal center">
@@ -142,6 +202,9 @@
       </div>
     </div>
     <div class="overlay" id="overlay"></div>
-    <script src="bundle.js"></script>
+
+    <script type="text/javascript"></script>
+
+    <script src="./bundle.js"></script>
   </body>
 </html>
