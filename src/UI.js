@@ -1,31 +1,34 @@
 // All UI or animation related js
 
-export default function changeToDoPages() {
-  const inboxBtn = document.querySelector('.inbox');
-  const todayBtn = document.querySelector('.today');
-  const favoriteBtn = document.querySelector('.favorite');
+export function changeToDoPages() {
+  const mainAdd = document.querySelector('.main iconify-icon');
 
-  const mainName = document.querySelector('.main > p');
+  const pageName = document.querySelector('.main > p');
 
-  inboxBtn.addEventListener('click', () => {
-    addCurrent(inboxBtn);
-    removeCurrent(todayBtn);
-    removeCurrent(favoriteBtn);
-    mainName.textContent = 'Inbox';
-  });
+  const options = document.querySelectorAll('div .option');
 
-  todayBtn.addEventListener('click', () => {
-    addCurrent(todayBtn);
-    removeCurrent(inboxBtn);
-    removeCurrent(favoriteBtn);
-    mainName.textContent = 'Today';
-  });
+  options.forEach(option => {
+    option.addEventListener('click', () => {
+      options.forEach(option => {
+        removeCurrent(option);
+      });
 
-  favoriteBtn.addEventListener('click', () => {
-    addCurrent(favoriteBtn);
-    removeCurrent(todayBtn);
-    removeCurrent(inboxBtn);
-    mainName.textContent = 'Favorite';
+      if (
+        option.classList.contains('today') ||
+        option.classList.contains('favorite')
+      ) {
+        pageName.style.marginBottom = '35px';
+        mainAdd.classList.add('disabled');
+      } else {
+        if (mainAdd.classList.contains('disabled')) {
+          pageName.style.marginBottom = '0px';
+          mainAdd.classList.remove('disabled');
+        }
+      }
+
+      pageName.textContent = option.querySelector('p').textContent;
+      addCurrent(option);
+    });
   });
 
   function addCurrent(el) {
@@ -36,4 +39,12 @@ export default function changeToDoPages() {
   function removeCurrent(el) {
     el.classList.remove('current');
   }
+}
+
+export function menuToggle() {
+  const menuBtn = document.querySelector('.header-txt iconify-icon');
+  menuBtn.addEventListener('click', () => {
+    document.querySelector('.main').classList.toggle('toggle');
+    document.querySelector('.opt').classList.toggle('toggle');
+  });
 }
