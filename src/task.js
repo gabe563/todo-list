@@ -8,6 +8,7 @@ export default class Task {
     this._project = project;
     this._desc = desc;
     this._Id = makeID();
+    this.favorite = false;
   }
 
   get name() {

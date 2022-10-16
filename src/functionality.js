@@ -4,6 +4,7 @@ import { changeToDoPages } from './UI';
 
 import Task from './task';
 import Project from './project';
+import { format } from 'date-fns';
 
 // Dont select text when double clicking
 document.addEventListener('mousedown', event => {
@@ -13,28 +14,72 @@ document.addEventListener('mousedown', event => {
 });
 
 // Tasks array
-let ToDo = [];
+const ToDo = getFromLocal('all.tasks') || [];
+
+function saveTaskToLocal() {
+  writeToLocal('all.tasks', ToDo);
+  writeToLocal('all.projects', project);
+}
+
+// Projects array
+const project = getFromLocal('all.projects') || [
+  new Project('inbox', true),
+  new Project('today'),
+  new Project('favorite'),
+];
+
+(function () {
+  if (localStorage.getItem('all.projects') == null) {
+    // Update in Local Storage
+    writeToLocal('all.projects', project);
+  }
+})();
 
 export function tasksFunctionality() {
-  // Initialize onsubmit function
-  makeToDo();
-
   // Default functions onload
   window.addEventListener('load', () => {
+    // Get all tasks from ToDo array
     getAllTasks();
 
+    // Set default ids of inbox, today and favorite "projects"
+    defaultID([
+      document.querySelector('.icons .inbox'),
+      document.querySelector('.icons .today'),
+      document.querySelector('.icons .favorite'),
+    ]);
+
+    // Get the id from inbox project
     const inboxOpt = document.querySelector('.icons .inbox');
     const inboxProjectID = inboxOpt.id.substr(inboxOpt.id.indexOf('_'));
 
+    // Set _current propertie true
+    setInboxCurrent(inboxProjectID);
+
+    // Get all tasks in inbox project onload
     getProjectTasks(inboxProjectID);
+
+    // Initialize projects onclick function
+    renderTasksOnClick();
+
+    // Initialize onsubmit function
+    makeToDo();
   });
+
+  function setInboxCurrent(id) {
+    project.forEach(projct => {
+      projct._current = false;
+      if (projct._Id === id) {
+        projct._current = true;
+      }
+    });
+
+    // Update in Local Storage
+    writeToLocal('all.projects', project);
+  }
 
   function getAllTasks() {
     LoopTasks(ToDo);
   }
-
-  // Initialize projects onclick function
-  renderTasksOnClick();
 
   // Change projects onclick function
   function renderTasksOnClick() {
@@ -43,19 +88,19 @@ export function tasksFunctionality() {
     opt.addEventListener('click', e => {
       e.stopPropagation();
       if (e.target.closest('div .option[id*="projectCard_"]')) {
-        if (window.screen.availWidth < 768) {
+        if (window.screen.availWidth < 1150) {
           document.querySelector('.main').classList.toggle('toggle');
           document.querySelector('.opt').classList.toggle('toggle');
         }
 
         getProjectTasks(
           e.target
-            .closest('div')
-            .id.substr(e.target.closest('div').id.indexOf('_'))
+            .closest('div .option')
+            .id.substr(e.target.closest('div .option').id.indexOf('_'))
         );
 
         removeCurrentSelection();
-        e.target.closest('div').classList.toggle('current');
+        e.target.closest('div .option').classList.toggle('current');
       }
     });
   }
@@ -83,10 +128,11 @@ export function tasksFunctionality() {
 
   // Get the tasks from the actual projects
   function getProjectTasks(projectID) {
-    let target = project.filter(projct => projct.id === projectID);
+    console.log(projectID);
+    let target = project.filter(projct => projct._Id === projectID);
 
     const projectTasks = ToDo.filter(task =>
-      target[0]._projectTasks.includes(task.Id)
+      target[0]._projectTasks.includes(task._Id)
     );
 
     LoopTasks(projectTasks);
@@ -130,13 +176,31 @@ export function tasksFunctionality() {
       // Add task to allTasks array
       ToDo.push(currTask);
 
-      // Call function to add task id to project
+      manageFromTodayProject();
+
+      // Call function to add task id to project and manage each toDo for today project
       for (const obj of ToDo) {
         addTaskToProject(obj);
       }
 
+      function selectedProject() {
+        const taskProjectOpt = document.querySelectorAll(
+          '#task-project option'
+        );
+
+        let currTaskOpt;
+
+        taskProjectOpt.forEach(taskOption => {
+          if (taskOption.selected === true) {
+            currTaskOpt = taskOption;
+          }
+        });
+        return currTaskOpt.dataset.id;
+      }
+
       if (currentProjectSelected()) {
         getProjectTasks(currentProjectSelected());
+        saveTaskToLocal();
       }
 
       // Set current project selected in modal
@@ -151,7 +215,7 @@ export function tasksFunctionality() {
 
     const newTask = document.createElement('div');
     newTask.classList.add(`toDo`);
-    newTask.id = `toDo${item.Id}`;
+    newTask.id = `toDo${item._Id}`;
 
     // Show or hide information container
     newTask.addEventListener('click', () => {
@@ -186,6 +250,7 @@ export function tasksFunctionality() {
         check.removeChild(checkActive);
         toggleChecked();
       }
+      writeToLocal('all.tasks', ToDo);
     });
 
     function toggleChecked() {
@@ -194,7 +259,7 @@ export function tasksFunctionality() {
     }
 
     const taskName = document.createElement('p');
-    taskName.textContent = item.name;
+    taskName.textContent = item._name;
 
     left.appendChild(check);
     left.appendChild(taskName);
@@ -213,7 +278,7 @@ export function tasksFunctionality() {
       e.stopPropagation();
 
       const editTaskForm = document.getElementById('editCont');
-      editTaskForm.setAttribute('data-id', item.Id);
+      editTaskForm.setAttribute('data-id', item._Id);
 
       const nameInput = document.getElementById('edit-name');
       const dueDateInput = document.getElementById('edit-date');
@@ -221,11 +286,11 @@ export function tasksFunctionality() {
       const projectInput = document.getElementById('edit-project');
       const descInput = document.getElementById('edit-description');
 
-      nameInput.value = item.name;
-      dueDateInput.value = item.dueDate;
-      priorityInput.value = item.priority;
-      projectInput.value = item.project;
-      descInput.value = item.description;
+      nameInput.value = item._name;
+      dueDateInput.value = item._dueDate;
+      priorityInput.value = item._priority;
+      projectInput.value = item._project;
+      descInput.value = item._desc;
 
       onEdit();
     });
@@ -252,16 +317,44 @@ export function tasksFunctionality() {
         iconTwo.appendChild(favorite);
         toggleFavorite();
       }
+      writeToLocal('all.tasks', ToDo);
+      writeToLocal('all.projects', project);
+      checkForFavoriteProject();
+
+      function checkForFavoriteProject() {
+        const favoriteOpt = document.querySelector('.icons .favorite');
+        const favoriteProjectID = favoriteOpt.id.substr(
+          favoriteOpt.id.indexOf('_')
+        );
+
+        const target = project.filter(
+          projct => projct._Id === favoriteProjectID
+        );
+
+        if (item.favorite) {
+          target[0]._projectTasks.push(item._Id);
+        } else {
+          target[0]._projectTasks.splice(
+            target[0]._projectTasks.indexOf(item._Id),
+            1
+          );
+
+          if (favoriteOpt.classList.contains('current')) {
+            getProjectTasks(favoriteProjectID);
+          }
+        }
+        writeToLocal('all.projects', project);
+      }
     });
 
     function toggleFavorite() {
       item.favorite = !item.favorite;
-      getProjectTasks(currentProjectSelected);
+      getProjectTasks(currentProjectSelected());
     }
 
     const priorityDiv = document.createElement('select');
     priorityDiv.classList.add('priority');
-    priorityDiv.classList.add(`${item.priority}`);
+    priorityDiv.classList.add(`${item._priority}`);
 
     const option1 = document.createElement('option');
     option1.textContent = 'Low';
@@ -296,20 +389,20 @@ export function tasksFunctionality() {
           priorityDiv.classList.add('low');
           priorityDiv.classList.remove('normal');
           priorityDiv.classList.remove('important');
-          item.priority = 'low';
+          item._priority = 'low';
         } else if (e.target.value === 'normal') {
           priorityDiv.classList.add('normal');
           priorityDiv.classList.remove('low');
           priorityDiv.classList.remove('important');
-          item.priority = 'normal';
+          item._priority = 'normal';
         } else if (e.target.value === 'important') {
           priorityDiv.classList.add('important');
           priorityDiv.classList.remove('low');
           priorityDiv.classList.remove('normal');
-          item.priority = 'important';
+          item._priority = 'important';
         }
-
         getProjectTasks(currentProjectSelected());
+        writeToLocal('all.tasks', ToDo);
       });
     });
 
@@ -322,7 +415,7 @@ export function tasksFunctionality() {
 
     const infoCont = document.createElement('div');
     infoCont.classList.add('information');
-    infoCont.id = `information${item.Id}`;
+    infoCont.id = `information${item._Id}`;
 
     const dueDate = document.createElement('div');
     dueDate.classList.add('due-date');
@@ -331,7 +424,7 @@ export function tasksFunctionality() {
     dateTitle.textContent = 'Due-date:';
 
     const dateInfo = document.createElement('p');
-    dateInfo.textContent = `${item.dueDate}`;
+    dateInfo.textContent = `${item._dueDate}`;
 
     const desc = document.createElement('div');
     desc.classList.add('description');
@@ -340,7 +433,7 @@ export function tasksFunctionality() {
     descTitle.textContent = 'Description:';
 
     const descInfo = document.createElement('p');
-    descInfo.textContent = `${item.description}`;
+    descInfo.textContent = `${item._desc}`;
 
     infoCont.appendChild(dueDate);
 
@@ -402,6 +495,38 @@ export function tasksFunctionality() {
     return taskContainer;
   }
 
+  function manageFromTodayProject() {
+    const minDate = format(new Date(), 'yyyy-MM-dd');
+
+    const todayOpt = document.querySelector('.icons .today');
+    const todayProjectID = todayOpt.id.substr(todayOpt.id.indexOf('_'));
+
+    const target = project.filter(projct => projct._Id === todayProjectID);
+
+    ToDo.forEach(toDo => {
+      if (
+        toDo._dueDate === minDate &&
+        !target[0]._projectTasks.includes(toDo._Id)
+      ) {
+        target[0]._projectTasks.push(toDo._Id);
+      } else if (
+        toDo._dueDate !== minDate &&
+        target[0]._projectTasks.includes(toDo._Id)
+      ) {
+        ToDo.forEach(todo => {
+          target[0]._projectTasks.splice(
+            target[0]._projectTasks.indexOf(todo._Id),
+            1
+          );
+        });
+      }
+      if (todayOpt.classList.contains('current')) {
+        getProjectTasks(todayProjectID);
+      }
+    });
+    writeToLocal('all.projects', project);
+  }
+
   // Add defined task id to project
   function addTaskToProject(item) {
     const taskProjectOpt = document.querySelectorAll('#task-project option');
@@ -411,10 +536,10 @@ export function tasksFunctionality() {
     taskProjectOpt.forEach(taskOption => {
       if (taskOption.selected === true) {
         project.forEach(projct => {
-          if (taskOption.dataset.id === projct.id) {
+          if (taskOption.dataset.id === projct._Id) {
             if (!projct._projectTasks.includes(lastItem)) {
               if (lastItem === item) {
-                projct._projectTasks.push(item.Id);
+                projct._projectTasks.push(item._Id);
               }
             }
           }
@@ -478,19 +603,26 @@ export function tasksFunctionality() {
   }
 
   function deleteTask(item) {
-    const targetNode = document.querySelector(`#toDo${item.Id}`);
-    targetNode.parentNode.removeChild(targetNode);
+    try {
+      const targetNode = document.querySelector(`#toDo${item._Id}`);
+
+      targetNode.parentNode.removeChild(targetNode);
+    } catch (err) {}
 
     for (let i = 0; i < ToDo.length; i++) {
-      if (ToDo[i].Id === item.Id) {
+      if (ToDo[i]._Id === item._Id) {
         // Delete from allTasks array
         ToDo.splice(i, 1);
         // Delete id from defined project
         project.forEach(projct => {
-          if (projct._name === item.project) {
-            if (projct._projectTasks.includes(item.Id)) {
+          if (
+            projct._name === item._project ||
+            projct._name === 'today' ||
+            projct._name === 'favorite'
+          ) {
+            if (projct._projectTasks.includes(item._Id)) {
               projct._projectTasks.splice(
-                projct._projectTasks.indexOf(item.Id),
+                projct._projectTasks.indexOf(item._Id),
                 1
               );
             }
@@ -499,6 +631,8 @@ export function tasksFunctionality() {
         break;
       }
     }
+    writeToLocal('all.tasks', ToDo);
+    writeToLocal('all.projects', project);
   }
 
   function editTask() {
@@ -512,15 +646,16 @@ export function tasksFunctionality() {
     const descInput = document.getElementById('edit-description');
 
     ToDo.forEach(task => {
-      if (task.Id === editID) {
+      if (task._Id === editID) {
         // Remove from current project
         project.forEach(projct => {
-          if (projct.name === task.project) {
-            if (projct._projectTasks.includes(task.Id)) {
+          if (projct._name === task._project) {
+            if (projct._projectTasks.includes(task._Id)) {
               projct._projectTasks.splice(
-                projct._projectTasks.indexOf(task.Id),
+                projct._projectTasks.indexOf(task._Id),
                 1
               );
+              writeToLocal('all.projects', project);
             }
           }
 
@@ -531,37 +666,58 @@ export function tasksFunctionality() {
           // Add to new project
           editProjectOpt.forEach(editOption => {
             if (editOption.selected === true) {
-              if (editOption.dataset.id === projct.id) {
-                if (!projct._projectTasks.includes(task.Id)) {
-                  projct._projectTasks.push(task.Id);
+              if (editOption.dataset.id === projct._Id) {
+                if (!projct._projectTasks.includes(task._Id)) {
+                  projct._projectTasks.push(task._Id);
+                  writeToLocal('all.projects', project);
                 }
               }
             }
           });
         });
         // Rename
-        task.name = nameInput.value;
-        task.dueDate = dueDateInput.value;
-        task.priority = priorityInput.value;
-        task.project = projectInput.value;
-        task.description = descInput.value;
+        task._name = nameInput.value;
+        task._dueDate = dueDateInput.value;
+        task._priority = priorityInput.value;
+        task._project = projectInput.value;
+        task._desc = descInput.value;
       }
     });
 
     // Update
     getProjectTasks(currentProjectSelected());
+    manageFromTodayProject();
+    writeToLocal('all.tasks', ToDo);
   }
+
+  return { createToDo };
 }
 
-// Projects array
-const project = [
-  new Project('inbox', true),
-  new Project('today'),
-  new Project('favorite'),
-];
+function saveProjectToLocal() {
+  writeToLocal('all.projects', project);
+}
+
+// Add default id to project on load
+function defaultID([inbox, today, favorite]) {
+  project.forEach(projct => {
+    if (projct._name === 'inbox') {
+      inbox.id = `projectCard${projct._Id}`;
+    } else if (projct._name === 'today') {
+      today.id = `projectCard${projct._Id}`;
+    } else if (projct._name === 'favorite') {
+      favorite.id = `projectCard${projct._Id}`;
+    }
+  });
+}
 
 export function projectFunctionality() {
-  makeProject();
+  window.addEventListener('load', () => {
+    // Loop through each project onload
+    LoopProjects();
+
+    // Initialize onsubmit function
+    makeProject();
+  });
 
   // Loop through each project
   function LoopProjects() {
@@ -569,9 +725,9 @@ export function projectFunctionality() {
     projectsCont.innerHTML = '';
     project.forEach(projct => {
       if (
-        projct.name != 'inbox' &&
-        projct.name != 'today' &&
-        projct.name != 'favorite'
+        projct._name != 'inbox' &&
+        projct._name != 'today' &&
+        projct._name != 'favorite'
       ) {
         createNewProject(projct);
       }
@@ -588,8 +744,8 @@ export function projectFunctionality() {
       const newProject = new Project(nameInput.value);
 
       project.push(newProject);
-
       LoopProjects();
+      saveProjectToLocal();
     });
   }
 
@@ -603,10 +759,11 @@ export function projectFunctionality() {
         let optionID = option.id.substr(option.id.indexOf('_'));
         project.forEach(prjct => {
           prjct._current = false;
-          if (optionID === prjct.id) {
-            prjct.current = true;
+          if (optionID === prjct._Id) {
+            prjct._current = true;
           }
         });
+        writeToLocal('all.projects', project);
       });
     });
   }
@@ -618,13 +775,13 @@ export function projectFunctionality() {
     const projectCard = document.createElement('div');
     projectCard.classList.add('projectCard');
     projectCard.classList.add('option');
-    projectCard.id = `projectCard${item.id}`;
+    projectCard.id = `projectCard${item._Id}`;
 
     const projectLine = document.createElement('hr');
     projectLine.classList.add('project-line');
 
     const projectName = document.createElement('p');
-    projectName.textContent = item.name;
+    projectName.textContent = item._name;
 
     const icons = document.createElement('div');
     icons.classList.add('project-icons');
@@ -635,11 +792,11 @@ export function projectFunctionality() {
     editProject.addEventListener('click', e => {
       e.stopPropagation();
       const editTaskForm = document.getElementById('projectEditCont');
-      editTaskForm.setAttribute('data-id', item.id);
+      editTaskForm.setAttribute('data-id', item._Id);
 
       const nameInput = document.getElementById('project-edit-name');
 
-      nameInput.value = item.name;
+      nameInput.value = item._name;
 
       onEdit();
     });
@@ -677,18 +834,19 @@ export function projectFunctionality() {
         let optionID = option.id.substr(option.id.indexOf('_'));
         project.forEach(prjct => {
           prjct._current = false;
-          if (optionID === prjct.id) {
-            prjct.current = true;
+          if (optionID === prjct._Id) {
+            prjct._current = true;
           }
         });
+        writeToLocal('all.projects', project);
       });
     });
 
     options.forEach(option => {
       project.forEach(prjct => {
         let optionID = option.id.substr(option.id.indexOf('_'));
-        if (prjct.current === true) {
-          if (prjct.id === optionID) {
+        if (prjct._current === true) {
+          if (prjct._Id === optionID) {
             if (!option.classList.contains('current')) {
               option.classList.add('current');
             }
@@ -731,20 +889,142 @@ export function projectFunctionality() {
   }
 
   function deleteProject(item) {
-    const targetNode = document.querySelector(`#projectCard${item.id}`);
+    const targetNode = document.querySelector(`#projectCard${item._Id}`);
     targetNode.parentNode.removeChild(targetNode);
 
+    const favoriteOpt = document.querySelector('.icons .favorite');
+    const favoriteProjectID = favoriteOpt.id.substr(
+      favoriteOpt.id.indexOf('_')
+    );
+
+    const todayOpt = document.querySelector('.icons .today');
+    const todayProjectID = todayOpt.id.substr(todayOpt.id.indexOf('_'));
+
+    // Delete toDo(s) from toDoArray
+    project.forEach(projct => {
+      if (projct._Id === item._Id) {
+        projct._projectTasks.forEach(taskID => {
+          let target = ToDo.filter(todo => todo._Id === taskID);
+          ToDo.splice(ToDo.indexOf(target[0]), 1);
+        });
+      }
+    });
+
+    checkForFavoriteCurrent();
+
+    // Update favorite project if tasks in there project were deleted
+    function checkForFavoriteCurrent() {
+      if (favoriteOpt.classList.contains('current')) {
+        let target = project.filter(projct => projct._Id === favoriteProjectID);
+
+        const projectTasks = ToDo.filter(task =>
+          target[0]._projectTasks.includes(task._Id)
+        );
+
+        LoopTasks(projectTasks);
+      }
+    }
+
+    checkForTodayCurrent();
+
+    // Update today project if tasks in there project were deleted
+    function checkForTodayCurrent() {
+      if (todayOpt.classList.contains('current')) {
+        let target = project.filter(projct => projct._Id === todayProjectID);
+
+        const projectTasks = ToDo.filter(task =>
+          target[0]._projectTasks.includes(task._Id)
+        );
+
+        LoopTasks(projectTasks);
+      }
+    }
+
+    manageTodayFavoriteIDs();
+
+    function manageTodayFavoriteIDs() {
+      project.forEach(projct => {
+        if (projct._Id === item._Id) {
+          projct._projectTasks.forEach(taskID => {
+            const todayFavoriteprojects = project.filter(
+              projt =>
+                projt._Id === todayProjectID || projt._Id === favoriteProjectID
+            );
+
+            todayFavoriteprojects.forEach(projt => {
+              projt._projectTasks.forEach(currID => {
+                if (currID === taskID) {
+                  projt._projectTasks.splice(
+                    projt._projectTasks.indexOf(taskID),
+                    1
+                  );
+                }
+              });
+            });
+          });
+        }
+      });
+    }
+
     for (let i = 0; i < project.length; i++) {
-      if (project[i].id === item.id) {
-        // Remove from array
+      if (project[i]._Id === item._Id) {
+        // Remove from projectsArray
         project.splice(i, 1);
         break;
       }
     }
 
+    // Change to inbox if you are in current project to be deleted
+    if (targetNode.classList.contains('current')) {
+      const inboxOpt = document.querySelector('.icons .inbox');
+      const inboxProjectID = inboxOpt.id.substr(inboxOpt.id.indexOf('_'));
+      const pageName = document.querySelector('.main p');
+
+      project.forEach(prjct => {
+        prjct._current = false;
+        if (inboxProjectID === prjct.id) {
+          prjct._current = true;
+          if (!inboxOpt.classList.contains('current')) {
+            inboxOpt.classList.add('current');
+          }
+          pageName.textContent = 'Inbox';
+        }
+      });
+
+      // Duplicated functions to prevent duplicate task bug due to taskFunctionality loop
+
+      let target = project.filter(projct => projct._Id === inboxProjectID);
+
+      const projectTasks = ToDo.filter(task =>
+        target[0]._projectTasks.includes(task._Id)
+      );
+
+      LoopTasks(projectTasks);
+    }
+
+    // Loop through each task from the current project
+    function LoopTasks(tasks) {
+      const tasksCont = document.querySelector('.tasks');
+      tasksCont.innerHTML = '';
+      tasks.forEach(obj => {
+        renderTask(obj);
+      });
+    }
+
+    // Call create task card function and append it to the main content
+    function renderTask(item) {
+      const tasksCont = document.querySelector('.tasks');
+      const taskCard = tasksFunctionality().createToDo(item);
+      tasksCont.appendChild(taskCard);
+    }
+
     // Delete old options in modals (add, edit)
     newTaskProject();
     newTaskEditProject();
+
+    // Update in Local Storage
+    writeToLocal('all.tasks', ToDo);
+    writeToLocal('all.projects', project);
   }
 
   function editProject() {
@@ -758,20 +1038,21 @@ export function projectFunctionality() {
     const nameInput = document.getElementById('project-edit-name');
 
     project.forEach(projct => {
-      if (projct.id === editID) {
+      if (projct._Id === editID) {
         options.forEach(option => {
           const p = option.querySelector('p').textContent;
-          if (p === projct.name) {
+          if (p === projct._name) {
             if (option.classList.contains('current')) {
               pageName.textContent = nameInput.value;
             }
           }
         });
-        projct.name = nameInput.value;
+        projct._name = nameInput.value;
       }
     });
 
     LoopProjects();
+    writeToLocal('all.projects', project);
   }
 
   newTaskProject();
@@ -782,39 +1063,20 @@ export function projectFunctionality() {
     taskProject.innerHTML = '';
 
     project.forEach(projct => {
-      if (projct.name != 'today' && projct.name != 'favorite') {
+      if (projct._name != 'today' && projct._name != 'favorite') {
         const option = document.createElement('option');
-        if (projct.name === 'inbox') {
+        if (projct._name === 'inbox') {
           option.textContent = 'None';
-          option.value = projct.name;
+          option.value = projct._name;
         } else {
-          option.textContent = projct.name;
-          option.value = projct.name;
+          option.textContent = projct._name;
+          option.value = projct._name;
         }
 
-        option.setAttribute('data-id', projct.id);
+        option.setAttribute('data-id', projct._Id);
 
         taskProject.append(option);
         TasksModal().currProjectSelected();
-      }
-    });
-  }
-
-  defaultID();
-
-  // Add default id to project on load
-  function defaultID() {
-    project.forEach(projct => {
-      const inboxOpt = document.querySelector('.inbox');
-      const todayOpt = document.querySelector('.today');
-      const favoriteOpt = document.querySelector('.favorite');
-
-      if (projct.name === 'inbox') {
-        inboxOpt.id = `projectCard${projct.id}`;
-      } else if (projct.name === 'today') {
-        todayOpt.id = `projectCard${projct.id}`;
-      } else if (projct.name === 'favorite') {
-        favoriteOpt.id = `projectCard${projct.id}`;
       }
     });
   }
@@ -827,19 +1089,27 @@ export function projectFunctionality() {
     editProject.innerHTML = '';
 
     project.forEach(projct => {
-      if (projct.name != 'today' && projct.name != 'favorite') {
+      if (projct._name != 'today' && projct._name != 'favorite') {
         const option = document.createElement('option');
-        if (projct.name === 'inbox') {
+        if (projct._name === 'inbox') {
           option.textContent = 'None';
-          option.value = projct.name;
+          option.value = projct._name;
         } else {
-          option.textContent = projct.name;
-          option.value = projct.name;
+          option.textContent = projct._name;
+          option.value = projct._name;
         }
-        option.setAttribute('data-id', projct.id);
+        option.setAttribute('data-id', projct._Id);
 
         editProject.append(option);
       }
     });
   }
+}
+
+function getFromLocal(name) {
+  return JSON.parse(localStorage.getItem(name));
+}
+
+function writeToLocal(name, dataToWrite) {
+  localStorage.setItem(name, JSON.stringify(dataToWrite));
 }

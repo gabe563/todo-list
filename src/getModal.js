@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 // All stuff related with modals
 
 function TasksModal() {
@@ -140,15 +141,7 @@ function manageOnSubmit(form, modal) {
 }
 
 function minDate() {
-  const dtToday = new Date();
-
-  let month = dtToday.getMonth() + 1;
-  let day = dtToday.getDate();
-  let year = dtToday.getFullYear();
-  if (month < 10) month = '0' + month.toString();
-  if (day < 10) day = '0' + day.toString();
-
-  const minDate = year + '-' + month + '-' + day;
+  const minDate = format(new Date(), 'yyyy-MM-dd');
 
   const datePicker = document.querySelectorAll(`input[type='date']`);
 

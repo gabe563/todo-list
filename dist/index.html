@@ -13,9 +13,9 @@
     <div class="header">
       <div class="header-txt">
         <iconify-icon
-          icon="icons8:todo-list"
-          width="40"
-          height="40"
+          icon="icon-park-outline:hamburger-button"
+          width="35"
+          height="35"
         ></iconify-icon>
         <p>Todo List</p>
       </div>
@@ -82,7 +82,7 @@
       <div class="modal-top">
         <p>Create task</p>
       </div>
-      <form class="modal-cont" id="modalCont">
+      <form autocomplete="off" class="modal-cont" id="modalCont">
         <div class="input">
           <p>Name:</p>
           <input type="text" id="task-name" maxlength="40" required />
@@ -116,7 +116,7 @@
       <div class="modal-top">
         <p>Edit task</p>
       </div>
-      <form class="modal-cont" id="editCont">
+      <form class="modal-cont" id="editCont" autocomplete="off">
         <div class="input">
           <p>Name:</p>
           <input type="text" id="edit-name" maxlength="40" required />
@@ -150,7 +150,7 @@
       <div class="modal-top">
         <p>Create project</p>
       </div>
-      <form class="project-cont" id="projectCont">
+      <form class="project-cont" id="projectCont" autocomplete="off">
         <div class="input">
           <p>Name:</p>
           <input
@@ -171,7 +171,7 @@
       <div class="modal-top">
         <p>Edit project</p>
       </div>
-      <form class="project-cont" id="projectEditCont">
+      <form class="project-cont" id="projectEditCont" autocomplete="off">
         <div class="input">
           <p>Name:</p>
           <input
