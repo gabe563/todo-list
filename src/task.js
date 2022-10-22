@@ -67,5 +67,12 @@ export default class Task {
 }
 
 function makeID() {
-  return '_' + Math.floor(Math.random() * 1000000) + 1;
+  return (
+    '_' +
+    String(Date.now().toString(20) + Math.random().toString(14)).replace(
+      /\./g,
+      ''
+    )
+  );
+  // return '_' + Math.floor(Math.random() * 1000000) + 1;
 }

@@ -4,9 +4,10 @@ import { changeToDoPages } from './UI';
 
 import Task from './task';
 import Project from './project';
+
 import { format } from 'date-fns';
 
-// Dont select text when double clicking
+// Don't select text when double clicking
 document.addEventListener('mousedown', event => {
   if (event.detail > 1) {
     event.preventDefault();
@@ -21,20 +22,6 @@ function saveTaskToLocal() {
   writeToLocal('all.projects', project);
 }
 
-// Projects array
-const project = getFromLocal('all.projects') || [
-  new Project('inbox', true),
-  new Project('today'),
-  new Project('favorite'),
-];
-
-(function () {
-  if (localStorage.getItem('all.projects') == null) {
-    // Update in Local Storage
-    writeToLocal('all.projects', project);
-  }
-})();
-
 export function tasksFunctionality() {
   // Default functions onload
   window.addEventListener('load', () => {
@@ -47,6 +34,8 @@ export function tasksFunctionality() {
       document.querySelector('.icons .today'),
       document.querySelector('.icons .favorite'),
     ]);
+
+    removeYesterday();
 
     // Get the id from inbox project
     const inboxOpt = document.querySelector('.icons .inbox');
@@ -63,6 +52,33 @@ export function tasksFunctionality() {
 
     // Initialize onsubmit function
     makeToDo();
+
+    // Remove all yesterday tasks
+    function removeYesterday() {
+      const minDate = format(new Date(), 'yyyy-MM-dd');
+      ToDo.forEach(toDo => {
+        if (toDo._dueDate < minDate) {
+          project.forEach(projct => {
+            projct._projectTasks.forEach(task => {
+              if (task === toDo._Id) {
+                projct._projectTasks.splice(
+                  projct._projectTasks.indexOf(task),
+                  1
+                );
+                writeToLocal('all.projects', project);
+              }
+            });
+          });
+        }
+      });
+
+      ToDo.forEach(toDo => {
+        if (toDo._dueDate < minDate) {
+          ToDo.splice(ToDo.indexOf(toDo), 1);
+          writeToLocal('all.tasks', ToDo);
+        }
+      });
+    }
   });
 
   function setInboxCurrent(id) {
@@ -128,7 +144,6 @@ export function tasksFunctionality() {
 
   // Get the tasks from the actual projects
   function getProjectTasks(projectID) {
-    console.log(projectID);
     let target = project.filter(projct => projct._Id === projectID);
 
     const projectTasks = ToDo.filter(task =>
@@ -341,6 +356,7 @@ export function tasksFunctionality() {
 
           if (favoriteOpt.classList.contains('current')) {
             getProjectTasks(favoriteProjectID);
+            // writeToLocal('all.projects', project);
           }
         }
         writeToLocal('all.projects', project);
@@ -546,6 +562,8 @@ export function tasksFunctionality() {
         });
       }
     });
+    // Update in Local Storage
+    writeToLocal('all.projects', project);
   }
 
   function ifChecked(checkBtn, checkActive, item) {
@@ -692,6 +710,20 @@ export function tasksFunctionality() {
 
   return { createToDo };
 }
+
+// Projects array
+const project = getFromLocal('all.projects') || [
+  new Project('inbox', true),
+  new Project('today'),
+  new Project('favorite'),
+];
+
+(function () {
+  if (localStorage.getItem('all.projects') == null) {
+    // Update in Local Storage
+    writeToLocal('all.projects', project);
+  }
+})();
 
 function saveProjectToLocal() {
   writeToLocal('all.projects', project);
@@ -890,7 +922,10 @@ export function projectFunctionality() {
 
   function deleteProject(item) {
     const targetNode = document.querySelector(`#projectCard${item._Id}`);
-    targetNode.parentNode.removeChild(targetNode);
+
+    try {
+      targetNode.parentNode.removeChild(targetNode);
+    } catch (err) {}
 
     const favoriteOpt = document.querySelector('.icons .favorite');
     const favoriteProjectID = favoriteOpt.id.substr(
@@ -906,6 +941,8 @@ export function projectFunctionality() {
         projct._projectTasks.forEach(taskID => {
           let target = ToDo.filter(todo => todo._Id === taskID);
           ToDo.splice(ToDo.indexOf(target[0]), 1);
+          // Update in Local Storage
+          writeToLocal('all.tasks', ToDo);
         });
       }
     });
@@ -958,6 +995,8 @@ export function projectFunctionality() {
                     projt._projectTasks.indexOf(taskID),
                     1
                   );
+                  // Update in Local Storage
+                  writeToLocal('all.projects', project);
                 }
               });
             });
@@ -975,32 +1014,38 @@ export function projectFunctionality() {
     }
 
     // Change to inbox if you are in current project to be deleted
-    if (targetNode.classList.contains('current')) {
-      const inboxOpt = document.querySelector('.icons .inbox');
-      const inboxProjectID = inboxOpt.id.substr(inboxOpt.id.indexOf('_'));
-      const pageName = document.querySelector('.main p');
+    try {
+      if (targetNode.classList.contains('current')) {
+        const inboxOpt = document.querySelector('.icons .inbox');
+        const inboxProjectID = inboxOpt.id.substr(inboxOpt.id.indexOf('_'));
+        const pageName = document.querySelector('.main p');
 
-      project.forEach(prjct => {
-        prjct._current = false;
-        if (inboxProjectID === prjct.id) {
-          prjct._current = true;
-          if (!inboxOpt.classList.contains('current')) {
-            inboxOpt.classList.add('current');
+        project.forEach(prjct => {
+          prjct._current = false;
+          if (inboxProjectID === prjct._Id) {
+            prjct._current = true;
+            if (!inboxOpt.classList.contains('current')) {
+              inboxOpt.classList.add('current');
+            }
+            pageName.textContent = 'Inbox';
+            // Update in Local Storage
+            writeToLocal('all.projects', project);
           }
-          pageName.textContent = 'Inbox';
-        }
-      });
+        });
 
-      // Duplicated functions to prevent duplicate task bug due to taskFunctionality loop
+        let target = project.filter(projct => projct._Id === inboxProjectID);
 
-      let target = project.filter(projct => projct._Id === inboxProjectID);
+        const projectTasks = ToDo.filter(task =>
+          target[0]._projectTasks.includes(task._Id)
+        );
 
-      const projectTasks = ToDo.filter(task =>
-        target[0]._projectTasks.includes(task._Id)
-      );
+        LoopTasks(projectTasks);
+        // Update in Local Storage
+        writeToLocal('all.projects', project);
+      }
+    } catch (err) {}
 
-      LoopTasks(projectTasks);
-    }
+    // Duplicated functions to prevent duplicate task bug due to taskFunctionality loop
 
     // Loop through each task from the current project
     function LoopTasks(tasks) {
@@ -1069,8 +1114,10 @@ export function projectFunctionality() {
           option.textContent = 'None';
           option.value = projct._name;
         } else {
-          option.textContent = projct._name;
-          option.value = projct._name;
+          let projectNameCapitalized =
+            projct._name[0].toUpperCase() + projct._name.slice(1).toLowerCase();
+          option.textContent = projectNameCapitalized;
+          option.value = projectNameCapitalized;
         }
 
         option.setAttribute('data-id', projct._Id);
@@ -1106,6 +1153,7 @@ export function projectFunctionality() {
   }
 }
 
+// Manage Local Storage
 function getFromLocal(name) {
   return JSON.parse(localStorage.getItem(name));
 }

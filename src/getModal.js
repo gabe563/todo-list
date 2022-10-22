@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
-// All stuff related with modals
 
+// All stuff related with modals
 function TasksModal() {
   const taskForm = document.getElementById('modalCont');
   const taskModal = document.querySelector('.task-modal');
