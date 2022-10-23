@@ -1,6 +1,8 @@
-import { changeToDoPages, menuToggle } from './UI';
-import { TasksModal, ProjectsModal } from './getModal';
-import { tasksFunctionality, projectFunctionality } from './functionality';
+import { changeToDoPages, menuToggle } from './Modules/UI';
+import { TasksModal, ProjectsModal } from './Modules/getModal';
+import { tasksFunctionality } from './Modules/taskFunctionality';
+
+import { projectFunctionality } from './Modules/projectFunctionality';
 
 tasksFunctionality();
 projectFunctionality();
