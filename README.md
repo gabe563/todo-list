@@ -10,4 +10,4 @@
 
 ## Live Demo
 
-[Todo List ✅](https://foxysamu.github.io/todo-list)
+[Todo List ✅](https://gabe563.github.io/todo-list)
